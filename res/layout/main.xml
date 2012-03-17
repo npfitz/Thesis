@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="550dp"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/PictureView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75" />
+
+        <LinearLayout
+		    android:layout_width = "0dp"
+		    android:layout_height = "match_parent"
+		    android:orientation="vertical"
+		    android:layout_weight="0.25">
+			    
+			<ImageView
+	        	android:id = "@+id/histogram"
+	            android:layout_width="match_parent"
+	            android:layout_height="0dp"
+	            android:layout_weight="0.25"
+	            android:scaleType="fitXY">
+	        </ImageView>
+			
+			<LinearLayout
+			    android:layout_width = "match_parent"
+			    android:layout_height = "0dp"
+			    android:orientation="vertical"
+			    android:layout_weight ="0.75">
+			    
+			    <SeekBar
+	            	android:id="@+id/saturation"
+	            	android:layout_width="match_parent"
+	            	android:layout_height="wrap_content"
+	            	android:max="200"
+	            	android:paddingBottom="15dp"
+	            	android:paddingTop = "15dp" >
+	        	</SeekBar>	  
+	        	
+			    <SeekBar
+	            	android:id="@+id/exposure"
+	            	android:layout_width="match_parent"
+	            	android:layout_height="wrap_content"
+	            	android:max="100"
+	            	android:paddingBottom="15dp" >
+	        	</SeekBar>	  
+	        	
+			    <SeekBar
+	            	android:id="@+id/contrast"
+	            	android:layout_width="match_parent"
+	            	android:layout_height="wrap_content"
+	            	android:max="100"	            	
+	            	android:paddingBottom="15dp" >
+	        	</SeekBar>
+	        	<Button
+	        	    android:id="@+id/save"
+	        	    android:text="Save"
+	        	    android:paddingTop="20dp"
+	        	    android:layout_width="wrap_content"
+	        	    android:layout_height="wrap_content">
+	        	</Button>
+			    
+			</LinearLayout>            
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <Gallery
+        android:id="@+id/gallery1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
