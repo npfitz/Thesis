@@ -8826,12 +8826,13 @@ void CLASS jpeg_thumb()
   }
  // fwrite (thumb+2, 1, thumb_length-2, ofp);
 
-  size = (thumb_length) + (sizeof th) + sizeof(exif) + 4;
+  size = (thumb_length) + (sizeof th) + sizeof(exif) + 8;
 
   thumb_bytes = (unsigned char*)malloc(size);
   iptr = thumb_bytes;
-  *iptr = size;
-  tptr = (unsigned char*)&thumb_bytes[4];
+  *iptr++ = size;
+  *iptr = flip;
+  tptr = (unsigned char*)&thumb_bytes[8];
   *tptr++ = 0xff;
   *tptr++ = 0xd8;
 
@@ -8972,6 +8973,7 @@ unsigned int* CLASS nick_decode(int argc, const char **argv){
 	oprof = 0;
 	meta_data = ofname = 0;
 	ofp = stdout;
+	no_auto_bright = 1;
 
 	setjmp (failure);
 

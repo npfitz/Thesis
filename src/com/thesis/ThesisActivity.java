@@ -80,10 +80,12 @@ public class ThesisActivity extends Activity {
         }
         
         for(int i = 0; i < pics.size(); i++){
+        	System.out.println("Pulling thumb for: " + pics.elementAt(i).path);
         	adpt.addImage(pics.elementAt(i).getThumb());
         }
         
         previews.setAdapter(adpt);
+        previews.setSpacing(3);
         
         previews.setOnItemClickListener(new OnItemClickListener(){
 
@@ -94,17 +96,17 @@ public class ThesisActivity extends Activity {
 	        	
 	        	if(current != null)
 					current.free();
-				
-				current = pics.elementAt(position);
+	        	
+	        	current = pics.elementAt(position);
 				handler.setImage(current);
 				tm.pic = current;
 				
-				 
+				contrast.setProgress(50);
+	     	    exposure.setProgress(50);
+	     	    saturation.setProgress(100);
 				
 				LoadImageThread t = new LoadImageThread(current, handler);
 				t.start();
-				
-				// TODO Auto-generated method stub
 				
 			}
         	
@@ -114,8 +116,9 @@ public class ThesisActivity extends Activity {
 
     		@Override
     		public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-    			   			
-    			tm.setSaturation(saturation.getProgress());
+    			
+    			if(current.colors != null)
+    				tm.setSaturation(saturation.getProgress());
     			
     		}
 
@@ -138,7 +141,8 @@ public class ThesisActivity extends Activity {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				tm.setContrast(contrast.getProgress());
+				if(current.colors != null)
+					tm.setContrast(contrast.getProgress());
 				
 			}
 
@@ -159,7 +163,8 @@ public class ThesisActivity extends Activity {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				tm.setExposure(exposure.getProgress());
+				if(current.colors != null)
+					tm.setExposure(exposure.getProgress());
 				
 			}
 
@@ -182,10 +187,10 @@ public class ThesisActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try{
-					FileOutputStream out_hist = new FileOutputStream("/sdcard/saturation/hist" + saturation.getProgress() + ".jpg");
+					FileOutputStream out_hist = new FileOutputStream("/sdcard/contrast/hist" + contrast.getProgress() + ".jpg");
 					handler.getHist().compress(CompressFormat.JPEG, 100, out_hist);
 					
-					FileOutputStream out_image = new FileOutputStream("/sdcard/saturation/image" + saturation.getProgress() + ".jpg");
+					FileOutputStream out_image = new FileOutputStream("/sdcard/contrast/image" + contrast.getProgress() + ".jpg");
 					handler.getImage().compress(CompressFormat.JPEG, 100, out_image);
 					
 					out_hist.close();

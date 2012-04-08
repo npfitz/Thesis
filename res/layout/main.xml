@@ -40,7 +40,7 @@
 	            	android:id="@+id/saturation"
 	            	android:layout_width="match_parent"
 	            	android:layout_height="wrap_content"
-	            	android:max="200"
+	            	android:max="400"
 	            	android:paddingBottom="15dp"
 	            	android:paddingTop = "15dp" >
 	        	</SeekBar>	  
@@ -49,7 +49,7 @@
 	            	android:id="@+id/exposure"
 	            	android:layout_width="match_parent"
 	            	android:layout_height="wrap_content"
-	            	android:max="100"
+	            	android:max="200"
 	            	android:paddingBottom="15dp" >
 	        	</SeekBar>	  
 	        	
@@ -57,7 +57,7 @@
 	            	android:id="@+id/contrast"
 	            	android:layout_width="match_parent"
 	            	android:layout_height="wrap_content"
-	            	android:max="100"	            	
+	            	android:max="200"	            	
 	            	android:paddingBottom="15dp" >
 	        	</SeekBar>
 	        	<Button
@@ -76,6 +76,8 @@
     <Gallery
         android:id="@+id/gallery1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:paddingTop="5dp" />
 
 </LinearLayout>

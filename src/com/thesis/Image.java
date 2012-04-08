@@ -22,7 +22,7 @@ public class Image{
 	
 	public Image(String inPath){
 		path = inPath;
-		hist = new int[300 * 255];
+		hist = new int[256 * 150];
 		
 	};
 	
@@ -85,7 +85,7 @@ public class Image{
 	
 	public void update_histogram(){
 		
-		int n = 255;
+		int n = 256;
 		int k = 149;
 		
 		red_histogram = new int[n+1];
@@ -113,10 +113,44 @@ public class Image{
 		
 		step = max / (k+1);		
 		
+		
+		for(int i = 0; i < n; i++){
+		
+			int ceiling = red_histogram[i] / step;
+		
+			for(int j = 0; j <= k; j++){
+				if( j <= ceiling)
+					hist[((k-j) * n) + i] = 0xFFFF0000;
+				else
+					hist[((k-j) * n) + i] = 0xFF000000;
+			}
+			
+			ceiling = green_histogram[i]/step;
+			
+			for(int j = 0; j <= k; j++){
+				if( j <= ceiling)
+					hist[((k-j) * n) + i] |= 0x0000FF00;
+				
+			}
+			
+			ceiling = blue_histogram[i]/step;
+			
+			for(int j = 0; j <= k; j++){
+				if( j <= ceiling)
+					hist[((k-j) * n) + i] |= 0x000000FF;
+				
+			}
+		
+		
+		}
+		
+		
+		/*
 		for(int i = 0; i <= n; i++){			
 			int ceiling;
 			
 			ceiling = green_histogram[i] / step;
+			
 			for(int j = k; j >= 0; j--){
 				if(k - j <= ceiling)
 					hist[(j * n) + i] = 0xFF00FF00;
@@ -138,10 +172,8 @@ public class Image{
 					hist[(j*n) +i] |= 0x000000FF;
 			}
 			
-			
-			
-			
 		}
+		*/
 	}
 	
 }

@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.*;
 import android.graphics.*;
+import android.graphics.Bitmap.Config;
 
 
 public class UIHandler extends Handler{
@@ -21,7 +22,7 @@ public class UIHandler extends Handler{
 	public UIHandler(ImageView inPicture, ImageView inHist){
 		picture = inPicture;
 		hist = inHist;
-		histogram = Bitmap.createBitmap(255, 150, Bitmap.Config.ARGB_8888);
+		//histogram = Bitmap.createBitmap(256, 150, Bitmap.Config.ARGB_8888);
 	}
 	
 	public void setImage(Image x){
@@ -46,8 +47,10 @@ public class UIHandler extends Handler{
 			bmp.setPixels(pic.modified, 2, pic.width, 0, 0, pic.width, pic.height);
 			picture.setImageBitmap(bmp);
 		}
-		histogram.setPixels(pic.hist, 0, 255, 0, 0, 255, 150);
+		//histogram.setPixels(pic.hist, 0, 256, 0, 0, 255, 150);
+		histogram = Bitmap.createBitmap(pic.hist, 256, 150, Config.ARGB_8888);
 		hist.setImageBitmap(histogram);
+		
 		
 	}
 	
