@@ -10,7 +10,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.graphics.*;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Bitmap.Config;
+
 
 import java.io.*;
 import java.util.Vector;
@@ -23,7 +23,7 @@ public class ThesisActivity extends Activity {
 	Gallery previews;
 	
 	ImageView Main;
-	ImageView hist;
+	Histogram hist;
 	
 	Image current;
 	
@@ -36,7 +36,8 @@ public class ThesisActivity extends Activity {
 	SeekBar exposure;
 	SeekBar contrast;
 	
-	Button save;
+	Button saveButton;
+	Save save;
 	
     /** Called when the activity is first created. */
     @Override
@@ -50,11 +51,11 @@ public class ThesisActivity extends Activity {
                 
         previews = (Gallery)findViewById(R.id.gallery1);
         Main = (ImageView)findViewById(R.id.PictureView);
-        hist = (ImageView)findViewById(R.id.histogram);
+        hist = (Histogram)findViewById(R.id.histogram);
         saturation = (SeekBar)findViewById(R.id.saturation);
         contrast = (SeekBar)findViewById(R.id.contrast);
         exposure = (SeekBar)findViewById(R.id.exposure);
-        save = (Button)findViewById(R.id.save);
+        saveButton = (Button)findViewById(R.id.save);
         
         
         contrast.setProgress(50);
@@ -63,9 +64,15 @@ public class ThesisActivity extends Activity {
 	    
         handler = new UIHandler(Main, hist);
         tm = new ThreadManager(handler);
+        save = new Save();
+        save.setContainer(Main);
         
-       
+        PinchyZoomy pz = new PinchyZoomy();
         
+        Main.setOnTouchListener(pz);
+        Main.setDrawingCacheEnabled(true);
+        Main.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
         File folder = new File("/sdcard");
         
         for(int i = 0; i < folder.listFiles().length; i++){
@@ -100,6 +107,7 @@ public class ThesisActivity extends Activity {
 	        	current = pics.elementAt(position);
 				handler.setImage(current);
 				tm.pic = current;
+				save.setImage(current);
 				
 				contrast.setProgress(50);
 	     	    exposure.setProgress(50);
@@ -181,29 +189,11 @@ public class ThesisActivity extends Activity {
 			}
         	
         });
-            
-        save.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				try{
-					FileOutputStream out_hist = new FileOutputStream("/sdcard/contrast/hist" + contrast.getProgress() + ".jpg");
-					handler.getHist().compress(CompressFormat.JPEG, 100, out_hist);
-					
-					FileOutputStream out_image = new FileOutputStream("/sdcard/contrast/image" + contrast.getProgress() + ".jpg");
-					handler.getImage().compress(CompressFormat.JPEG, 100, out_image);
-					
-					out_hist.close();
-					out_image.close();
-					
-				}catch(Exception e){
-					System.out.println("Fail");
-					System.out.println(e.getMessage());
-				}
-				
-			}
-        	
-        });
+        
+        
+        
+        
+        saveButton.setOnClickListener(save);
             
         }    
      

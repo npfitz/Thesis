@@ -2,9 +2,7 @@ package com.thesis;
 
 import java.lang.Thread;
 
-import java.awt.*;
-
-import android.graphics.*;
+import android.graphics.ColorMatrix;
 import android.os.*;
 
 
@@ -17,12 +15,15 @@ public class ModifyImageThread extends Thread{
 	int cont;
 	int exp;
 	
+	boolean satChanged;
+	
 	ModifyImageThread(Image inPic, UIHandler inHandler, int val1, int val2, int val3){
 		pic = inPic;
 		handler = inHandler;
 		sat = val1;
 		cont = val2;
 		exp = val3;
+		satChanged = false;
 	}
 	
 	public void setManager(Handler x){
@@ -35,216 +36,76 @@ public class ModifyImageThread extends Thread{
 		exp = val3;
 	}
 	
+	public void enableSat(){
+		satChanged = true;
+	}
 	
 	public void run(){
 		
-		long start = System.nanoTime();
-				
-		//Exposure(exp);
-				
-		//Contrast(cont);
+		//long start = System.nanoTime();
+						
+		pic.S_mod.setSaturation((float) (sat/100.0));		
+		pic.E_mod = Exposure((float)((exp + 50.0)/100.0));
+		pic.C_mod = Contrast((float)((cont + 50.0)/100.0));		
 		
-		//Saturation(sat);
+		pic.update_filter();
 		
-		modify();
-				
-		pic.update_histogram();		
+		if(satChanged){
+			pic.update_hist_arrays();
+			System.out.println("Saturation Change");
+		}
 		Message msg = new Message();
 		msg.arg1 = 2;
 		handler.sendMessage(msg);
 		manager.sendEmptyMessage(1);
 		
-		long end = System.nanoTime();
+		//long end = System.nanoTime();
 		
-		System.out.println("Time for mod: " + (double)(end - start)/1000000000.0);
+		//System.out.println("Time for mod: " + (double)(end - start)/1000000000.0);
 	}
 	
-	public void modify(){
+	public ColorMatrix Exposure(float exp_mod){
+		float exp_matrix[] = {
+				exp_mod, 0, 0, 0, 0,
+				0, exp_mod, 0, 0, 0,
+				0, 0, exp_mod, 0, 0, 
+				0, 0, 0, 1, 0
+		};
 		
-		double contrast_mod = (cont + 50.0)/100.0;
-		double exposure_mod = (exp + 50.0)/100.0;
-		double saturation_mod = (sat)/100.0;
 		
-		double red, green, blue, luminance;
-		
-		for(int i = 2; i < pic.colors.length; i++){
-		
-			red = (pic.colors[i] & 0xFF0000) >> 16;
-			green = (pic.colors[i] & 0xFF00) >> 8;
-			blue = (pic.colors[i] & 0xFF);
-			
-			//Contrast
-			red = ((red - pic.average_R) * contrast_mod) + pic.average_R;
-			green = ((green - pic.average_G) * contrast_mod) + pic.average_G;
-			blue = ((blue - pic.average_B) * contrast_mod) + pic.average_B;
-			
-			//Exposure
-			red *= exposure_mod;
-			green *= exposure_mod;
-			blue *= exposure_mod;
-			
-			//Saturation
-			luminance = (red + green + blue)/3.0;
-					
-			red = ((red - luminance) * saturation_mod) + luminance;
-			blue  = ((blue - luminance) * saturation_mod) + luminance;
-			green = ((green - luminance) * saturation_mod) + luminance;
-			
-			//Set min's and Max's
-			red = Math.min(red, 255);
-			green = Math.min(green, 255);
-			blue = Math.min(blue, 255);
-			
-			red = Math.max(red, 0);
-			green = Math.max(green, 0);
-			blue = Math.max(blue, 0);		
-			
-			//Allocation!
-			pic.modified[i] = 0xFF000000 +((int)red << 16) + ((int)green << 8) + ((int)blue);
-		}		
+		return new ColorMatrix(exp_matrix);		
 	}
 	
-	
-	public void Contrast(int m_val){
-	
+	public ColorMatrix Contrast(float cont_mod){
+		float step1[] = {
+			1, 0, 0, 0, -pic.average_R,
+			0, 1, 0, 0, -pic.average_G,
+			0, 0, 1, 0, -pic.average_B, 
+			0, 0, 0, 1, 0
+		};
 		
-		double contrast_mod = (m_val + 50.0) / 100.0;
+		float step2[] = {
+				cont_mod, 0, 0, 0, 0,
+				0, cont_mod, 0, 0, 0,
+				0, 0, cont_mod, 0, 0, 
+				0, 0, 0, cont_mod, 0
+		};
 		
-		double blue, green, red;
+		float step3[] = {
+				1, 0, 0, 0, pic.average_R,
+				0, 1, 0, 0, pic.average_G,
+				0, 0, 1, 0, pic.average_B, 
+				0, 0, 0, 1, 0
+		};
 		
-		for(int i = 2; i < pic.colors.length; i++){
+		ColorMatrix retval = new ColorMatrix();
 		
-			red = (pic.modified[i] & 0xFF0000) >> 16;
-			green = (pic.modified[i] & 0xFF00) >> 8;
-			blue = (pic.modified[i] & 0xFF);
-			
-			red = ((red - pic.average_R) * contrast_mod) + pic.average_R;
-			green = ((green - pic.average_G) * contrast_mod) + pic.average_G;
-			blue = ((blue - pic.average_B) * contrast_mod) + pic.average_B;
-			
-			red = Math.min(red, 255);
-			green = Math.min(green, 255);
-			blue = Math.min(blue, 255);
-			
-			red = Math.max(red, 0);
-			green = Math.max(green, 0);
-			blue = Math.max(blue, 0);
-			
-						
-			
-			pic.modified[i] = 0xFF000000 +((int)red << 16) + ((int)green << 8) + ((int)blue);
-			
-			
-		}		
+		retval.postConcat(new ColorMatrix(step1));
+		retval.postConcat(new ColorMatrix(step2));
+		retval.postConcat(new ColorMatrix(step3));
+		
+		
+		return retval;
 	}
-	
-	
-	
-	/*
-	public void Saturation(int m_val){
-		
-		int blue, red, green;
-		
-		for(int i = 2; i < pic.colors.length; i++){
-			
-			blue = pic.modified[i] & 0xFF;
-			green = ( pic.modified[i] & 0xFF00) >> 8;
-			red = ( pic.modified[i] & 0xFF0000) >> 16;
-			
-			if(blue > green && blue > red){
-				
-				blue = Math.min(255, blue + m_val);
-				green = Math.max(0, green - m_val);
-				red = Math.max(0, red - m_val);
-			
-			}
-			
-			else if(green > blue && green > red){
-			
-				green = Math.min(255, green + m_val);
-				blue = Math.max(0, blue - m_val);
-				red = Math.max(0, red - m_val);
-											
-			}
-			else if(red > blue && red > green){
-
-				red = Math.min(255, red + m_val);
-				blue = Math.max(0,  blue - m_val);
-				green = Math.max(0, green - m_val);
-				
-			}
-			
-			pic.modified[i] = 0xFF000000 + (red << 16) + (green << 8) + blue;
-		}
-	}
-	*/
-
-	public void Saturation(int m_val){
-		
-		double Saturation_mod = m_val / 100.0;
-		
-		System.out.println("Saturation Mod: " + Saturation_mod);
-		
-		double red, green, blue;
-		
-		for(int i = 2; i < pic.modified.length; i++){
-		
-			red =  (pic.modified[i] & 0xFF0000) >> 16;
-			green = (pic.modified[i] & 0xFF00) >> 8;
-			blue = (pic.modified[i] & 0xFF);
-			
-			double luminance = (red + green + blue)/3.0;
-			
-			red = ((red - luminance) * Saturation_mod) + luminance;
-			blue  = ((blue - luminance) * Saturation_mod) + luminance;
-			green = ((green - luminance) * Saturation_mod) + luminance;
-			
-			
-			red = Math.min(red, 255);
-			green = Math.min(green, 255);
-			blue = Math.min(blue, 255);
-			
-			red = Math.max(red, 0);
-			green = Math.max(green, 0);
-			blue = Math.max(blue, 0);
-			
-			pic.modified[i] =  0xFF000000 + ((int)red << 16) + ((int)green << 8) + (int)blue;
-			
-			
-		}		
-	}
-	
-	public void Exposure(int m_val){
-		
-		double exposure_mod = (m_val + 50.0) / 100.0;
-		
-		int red, green, blue;
-		
-		for(int i = 2; i < pic.colors.length; i++){
-			
-			red = (pic.colors[i] & 0xFF0000) >> 16;
-			green = (pic.colors[i] & 0xFF00) >> 8;
-			blue = (pic.colors[i] & 0xFF);
-			
-			red *= exposure_mod;
-			green *= exposure_mod;
-			blue *= exposure_mod;
-			
-			
-			red = Math.min(red, 255);
-			green = Math.min(green, 255);
-			blue = Math.min(blue, 255);
-			
-			red = Math.max(red, 0);
-			green = Math.max(green, 0);
-			blue = Math.max(blue, 0);
-			
-			pic.modified[i] =  0xFF000000 + (red << 16) + (green << 8) + blue;			
-		}
-		
-	}
-	
-	
-	
 	
 }

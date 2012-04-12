@@ -16,6 +16,7 @@ public class ThreadManager{
 	
 	Image pic;
 	UIHandler ui;
+	boolean satChange;
 	
 	
 	
@@ -38,10 +39,13 @@ public class ThreadManager{
 		brightness = 50;
 		
 		ui = inUI;
+		
+		satChange = false;
 	}
 	
 	public void setSaturation(int x){
 		saturation = x;
+		satChange = true;
 		updateQueue();
 	}	
 	public void setContrast(int x){
@@ -62,15 +66,32 @@ public class ThreadManager{
 		if(current == null){
 			current = new ModifyImageThread(pic, ui, saturation, contrast, brightness);
 			current.setManager(manager);
+			if(satChange)
+				current.enableSat();
 			current.start();
 		}
 		else if(next == null){
 			next = new ModifyImageThread(pic, ui, saturation, contrast, brightness);
 			next.setManager(manager);
-			
+			if(satChange)
+				next.enableSat();			
 		}
-		else
+		else{
 			next.setStuff(saturation, contrast, brightness);
+			if(satChange)
+				next.enableSat();
+		}
+		satChange = false;
 	}
 	
+	
 }
+
+
+
+
+
+
+
+
+

@@ -8990,10 +8990,9 @@ unsigned int* CLASS nick_decode(int argc, const char **argv){
 
 	write_fun = &CLASS write_ppm_tiff;
 
-	shrink = filters && (half_size || (!identify_only && (threshold || aber[0] != 1 || aber[2] != 1)));
+	//shrink = filters && (half_size || (!identify_only && (threshold || aber[0] != 1 || aber[2] != 1)));
 
-	shrink++;
-
+	shrink = 1;
 	iheight = (height + shrink) >> shrink;
 	iwidth  = (width  + shrink) >> shrink;
 
